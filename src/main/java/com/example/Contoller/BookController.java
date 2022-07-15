@@ -1,6 +1,5 @@
 package com.example.Contoller;
 
-import com.example.Service.AuthorService;
 import com.example.Service.BookService;
 import com.example.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,24 +9,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+
 @RequestMapping(path = "/api/book")
 public class BookController {
 
-	private final BookService bookService;
-	private final AuthorService authorService;
+	private final BookService bookServiceImpl;
+
 
 	@Autowired
-	public BookController(BookService bookService, AuthorService authorService) {
-		this.bookService = bookService;
-		this.authorService = authorService;
+	public BookController(BookService bookServiceImpl){
+		this.bookServiceImpl = bookServiceImpl;
 	}
 
 	@PostMapping(path = "/addBook")
-	public void addBook(@RequestParam(value = "authorName", required = true) String authorName,
+	public void addBook(@RequestParam(value = "authorId", required = true) String authorId,
 	                    @RequestParam(value = "title", required = true) String title,
 	                    @RequestParam(value = "page", required = true) int page,
 	                    @RequestParam(value = "published", required = true) boolean published,
-	                    @RequestParam(value = "quantity", required = true) int quantity) {
+	                    @RequestParam(value = "quantity", required = true) int quantity,
+	                    @RequestParam(value = "price", required = true) int price
+	                    ) {
 		StringBuilder finalTitle = new StringBuilder();
 		String[] array = title.split("_");
 
@@ -35,22 +36,13 @@ public class BookController {
 			finalTitle.append(array[i]).append(" ");
 		}
 		finalTitle.append(array[array.length - 1]);
+		bookServiceImpl.addBook(authorId, finalTitle.toString(), page, published, quantity, price);
 
-		StringBuilder finalName = new StringBuilder();
-		String[] array1 = authorName.split("_");
-
-		for (int i = 0; i < array1.length - 1; i++) {
-			finalName.append(array1[i]).append(" ");
-		}
-		finalName.append(array1[array1.length - 1]);
-
-		bookService.addBook(finalName.toString(), finalTitle.toString(), page, published, quantity);
-		authorService.addAuthor(finalName.toString(), finalTitle.toString(), page, published, quantity);
 	}
 
 	@GetMapping
 	public List<String> getBooks() {
-		return bookService.getBooks();
+		return bookServiceImpl.getBooks();
 	}
 
 	@DeleteMapping(path = "{title}")
@@ -62,7 +54,7 @@ public class BookController {
 			finalTitle.append(array[i]).append(" ");
 		}
 		finalTitle.append(array[array.length - 1]);
-		bookService.deleteBook(finalTitle.toString());
+		bookServiceImpl.deleteBook(finalTitle.toString());
 	}
 
 	@PutMapping(path = "{bookTitle}")
@@ -86,7 +78,7 @@ public class BookController {
 			finalTitle.append(array[i]).append(" ");
 		}
 		finalTitle.append(array[array.length - 1]);
-		bookService.updateBookName(finalFirstTitle.toString(), finalTitle.toString());
+		bookServiceImpl.updateBookName(finalFirstTitle.toString(), finalTitle.toString());
 	}
 
 	@GetMapping("/isPublished/{title}")
@@ -100,16 +92,16 @@ public class BookController {
 		}
 		finalWord.append(array[array.length - 1]);
 
-		return bookService.getBook(finalWord.toString()).isPublished();
+		return bookServiceImpl.getBook(finalWord.toString()).isPublished();
 	}
 
 	@GetMapping("/includeUnPublished/{includeUnPublished}")
 	@ResponseBody
 	public List<Book> includeUnPublished(@PathVariable boolean includeUnPublished) {
 		if (includeUnPublished) {
-			return bookService.getBooksAsBooks();
+			return bookServiceImpl.getBooksAsBooks();
 		}
-		List<Book> listOfBooks = bookService.getBooksAsBooks();
+		List<Book> listOfBooks = bookServiceImpl.getBooksAsBooks();
 		List<Book> list = new ArrayList<>();
 		for (int i = 0; i < listOfBooks.size(); i++) {
 			if (!listOfBooks.get(i).isPublished()) {

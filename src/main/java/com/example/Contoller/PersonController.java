@@ -1,8 +1,7 @@
 package com.example.Contoller;
 
-import com.example.Service.AuthorService;
-import com.example.Service.BookService;
 import com.example.Service.PersonService;
+import com.example.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,34 +11,18 @@ import java.util.List;
 @RequestMapping(path = "/api/person")
 public class PersonController {
 
-	private final PersonService personService;
-	private final AuthorService authorService;
-	private final BookService bookService;
+	private final PersonService personServiceImpl;
 
 	@Autowired
-	public PersonController(PersonService personService, AuthorService authorService, BookService bookService) {
-		this.personService = personService;
-		this.authorService = authorService;
-		this.bookService = bookService;
+	public PersonController(PersonService personServiceImpl) {
+		this.personServiceImpl = personServiceImpl;
 	}
 
 	@PostMapping(path = "/addPerson")
 	public void addPerson(@RequestParam(value = "name", required = true) String name,
 	                      @RequestParam(value = "age", required = true) int age,
-	                      @RequestParam(value = "title", required = true) String title,
-	                      @RequestParam(value = "page", required = true) int page,
-	                      @RequestParam(value = "authorName", required = true) String authorName,
-	                      @RequestParam(value = "published", required = true) boolean published,
-	                      @RequestParam(value = "quantity", required = true) int quantity) {
-
-
-		StringBuilder finalName = new StringBuilder();
-		String[] array = authorName.split("_");
-
-		for (int i = 0; i < array.length - 1; i++) {
-			finalName.append(array[i]).append(" ");
-		}
-		finalName.append(array[array.length - 1]);
+	                      @RequestParam(value = "book", required = true) Book book
+	                      ) {
 
 		StringBuilder personName = new StringBuilder();
 		String[] array2 = name.split("_");
@@ -49,27 +32,17 @@ public class PersonController {
 		}
 		personName.append(array2[array2.length - 1]);
 
-		StringBuilder finalTitle = new StringBuilder();
-		String[] array3 = title.split("_");
-
-		for (int i = 0; i < array3.length - 1; i++) {
-			finalTitle.append(array3[i]).append(" ");
-		}
-		finalTitle.append(array3[array3.length - 1]);
-
-		personService.addPerson(personName.toString(), age, finalTitle.toString(), page, finalName.toString(), published, quantity);
-		bookService.addBook(finalName.toString(), finalTitle.toString(), page, published, quantity);
-		authorService.addAuthor(finalName.toString(), finalTitle.toString(), page, published, quantity);
+		personServiceImpl.addPerson(personName.toString(), age, book);
 	}
 
 	@GetMapping
 	public List<String> getPersons() {
-		return personService.getPersons();
+		return personServiceImpl.getPersons();
 	}
 
 	@DeleteMapping(path = "{personName}")
 	public void deletePerson(@PathVariable("personName") String personName) {
-		personService.deletePerson(personName);
+		personServiceImpl.deletePerson(personName);
 	}
 
 	@PutMapping(path = "{personName}")
@@ -93,7 +66,7 @@ public class PersonController {
 		}
 		finalName.append(array1[array1.length - 1]);
 
-		personService.updatePersonName(finalFirstName.toString(), finalName.toString());
+		personServiceImpl.updatePersonName(finalFirstName.toString(), finalName.toString());
 	}
 
 	@GetMapping("/personsBook/{name}")
@@ -107,6 +80,6 @@ public class PersonController {
 			finalWord.append(array[i]).append(" ");
 		}
 		finalWord.append(array[array.length - 1]);
-		return personService.getPersonsBooks(finalWord.toString());
+		return personServiceImpl.getPersonsBooks(finalWord.toString());
 	}
 }

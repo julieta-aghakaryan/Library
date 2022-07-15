@@ -1,29 +1,40 @@
 package com.example.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
+import dev.morphia.annotations.Reference;
+import org.bson.types.ObjectId;
 
+@Entity
 public class Book {
-	@JsonIgnore
-	private Author author;
+	@Id
+	private ObjectId id;
+	private String authorId;
 	private int quantity;
+	@JsonProperty("bookTitle")
 	private String title;
 	private int pages;
+	private int price;
 	private boolean published;
 
-	public Book(Author author, String title, int pages, boolean published, int quantity) {
-		this.author = author;
+	public Book(){}
+	public Book(String  authorId, String title, int pages, boolean published, int quantity, int price) {
+		this.authorId = authorId;
 		this.title = title;
 		this.pages = pages;
 		this.published = published;
 		this.quantity = quantity;
+		this.price = price;
 	}
 
-	public Author getAuthor() {
-		return author;
+	public String getAuthorId() {
+		return authorId;
 	}
 
-	public void setAuthor(Author author) {
-		this.author = author;
+	public void setAuthorId(String authorId) {
+		this.authorId = authorId;
 	}
 
 	public int getQuantity() {
@@ -56,5 +67,13 @@ public class Book {
 
 	public void setPublished(boolean published) {
 		this.published = published;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
 	}
 }

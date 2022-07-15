@@ -1,15 +1,27 @@
 package com.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
+import dev.morphia.annotations.Reference;
+import org.bson.types.ObjectId;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Person {
-
+	@Id
+	private ObjectId id;
+	@JsonProperty("personName")
 	private String name;
 	private int age;
+	@Reference
+	private List<Book> books;
 
-	private final List<Book> books;
-
+	public Person() {
+	}
 	public Person(String name, int age) {
 		this.name = name;
 		this.age = age;

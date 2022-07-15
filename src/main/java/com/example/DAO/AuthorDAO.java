@@ -1,103 +1,79 @@
 package com.example.DAO;
 
-import com.example.Service.BookService;
 import com.example.model.Author;
-import com.example.model.Book;
-import com.sun.jdi.request.DuplicateRequestException;
+
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import dev.morphia.Morphia;
+import dev.morphia.dao.BasicDAO;
+import dev.morphia.query.Query;
+import dev.morphia.query.UpdateOperations;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
+
 @Component
-public class AuthorDAO {
+public class AuthorDAO extends BasicDAO<Author, ObjectId> {
 
-	public BookService bookService = new BookService();
-	public ArrayList<Author> authorMap;
-	Author author1 = new Author("Dorian Grey");
-	Author author2 = new Author("HovhannesTumanyan");
-
-	Book book1 = new Book(author1, "The Picture Of The Dorian Grey", 100, true, 11);
-	Book book2 = new Book(author2, "Fairy Tales", 200, false, 12);
-
-	public AuthorDAO(ArrayList<Author> authorMap) {
-		this.authorMap = authorMap;
-		authorMap.add(author1);
-		authorMap.add(author2);
-		author1.setBooks(book1);
-		author2.setBooks(book2);
+	public AuthorDAO() {
+		super( new MongoClient(new MongoClientURI("mongodb://localhost:27017/")), new Morphia(), "library" );
 	}
-
+	public AuthorDAO(MongoClient mongoClient, Morphia morphia, String dbName) {
+		super(mongoClient, morphia, dbName);
+	}
 	public Author getAuthor(String name) {
-		for (int i = 0; i < authorMap.size(); i++) {
-			if (authorMap.get(i).getName().equals(name)) {
-				return authorMap.get(i);
-			}
-		}
-		throw new DuplicateRequestException("The book does not exists");
+		Query<Author> query = this.createQuery();
+		return (Author) query.filter("authorName", new ObjectId(name));
 	}
 
 	public void deleteAuthor(String authorName) {
-		boolean flag = true;
+		Query<Author> query = this.createQuery()
+				.field("authorName")
+				.equal(authorName);
 
-		for (int i = 0; i < authorMap.size(); i++) {
-			if (authorMap.get(i).getName().equals(authorName)) {
-				authorMap.remove(authorMap.get(i));
-				flag = false;
-				break;
-			}
-		}
-		if (flag) throw new RuntimeException("There is no such book");
-	}
-
-	public String getAuthorsBooks(String authorName) {
-		for (int i = 0; i < authorMap.size(); i++) {
-			if (authorMap.get(i).getName().equals(authorName)) {
-				return authorMap.get(i).getBooks();
-			}
-		}
-		throw new RuntimeException("There is no such author");
+		this.delete((Author) query);
 	}
 
 	public void updateAuthorName(String authorName, String name) {
-		boolean flag = true;
+		Query<Author> query = this.createQuery()
+				.field("authorName")
+				.contains(authorName);
 
-		for (int i = 0; i < authorMap.size(); i++) {
-			if (authorMap.get(i).getName().equals(authorName)) {
-				authorMap.get(i).setName(name);
-				flag = false;
-				break;
-			}
-		}
-		if (flag) throw new IllegalStateException("There is no Author with name " + authorName);
+		UpdateOperations<Author> updates = this.createUpdateOperations().inc(name);
+
+		this.update(query, updates);
 	}
 
-	public void addAuthor(String name, String title, int page, boolean published, int quantity) {
-		boolean flag = true;
-
-		for (Author value : authorMap) {
-			if (value.getName().equals(name)) {
-				Book book = new Book(value, title, page, published, quantity);
-				value.setBooks(book);
-				flag = false;
-				break;
-			}
-		}
-		if (flag) {
-			Author author = new Author(name);
-			Book book = new Book(author, title, page, published, quantity);
-			author.setBooks(book);
-			authorMap.add(author);
-		}
+	public void addAuthor(Author author) {
+		this.save(author);
 	}
 
-	public List<String> getAuthors() {
-		List<String> list = new ArrayList<>();
+	public List<Author> getAuthors() {
+		return this.createQuery()
+				.find()
+				.toList();
+	}
 
-		for (int i = 0; i < authorMap.size(); i++) {
-			list.add(authorMap.get(i).getName());
+	public List<String> getAuthorsNames() {
+		List<Author> authors = this.createQuery()
+				.find()
+				.toList();
+
+		List<String> authorNames = new ArrayList<>();
+		for (Author author : authors) {
+			authorNames.add(author.getName());
 		}
-		if (list.size() == 0) {
-			throw new IllegalStateException("There are no authors");
-		}
-		return list;
+		return authorNames;
+	}
+
+	public ObjectId getObjectIdByAuthorName(String authorName){
+		Query<Author> query = this.createQuery()
+				.field("authorName")
+				.contains(authorName);
+		Author author = (Author) query;
+		return author.getId();
 	}
 }
