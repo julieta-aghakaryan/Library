@@ -1,54 +1,23 @@
 package com.example.Service;
 
-import com.example.DAO.BookDAO;
 import com.example.model.Book;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
-public class BookService {
+public interface BookService {
 
-	private BookDAO bookDAO;
+	public Book getBook(String bookId);
 
-	public BookService() {
-	}
+	public void deleteBook(String bookId);
 
-	@Autowired
-	public BookService(BookDAO bookDAO) {
-		this.bookDAO = bookDAO;
-	}
+	public void updateBookName(String bookId, String title);
 
-	public Book getBook(String title) {
-		return bookDAO.getBook(title);
-	}
+	public void addBook(Book book);
 
-	public void deleteBook(String title) {
-		bookDAO.deleteBook(title);
-	}
+	public List<Book> getBooksAsBooks();
 
-	public void updateBookName(String bookTitle, String title) {
-		bookDAO.updateBookName(bookTitle, title);
-	}
+	public boolean isPublished(String title);
 
-	public void addBook(String authorName, String title, int page, boolean published, int quantity) {
-		bookDAO.addBook(authorName, title, page, published, quantity);
-	}
-
-	public List<String> getBooks() {
-		return bookDAO.getBooks();
-	}
-
-	public List<Book> getBooksAsBooks() {
-		return bookDAO.getBooksAsBooks();
-	}
-
-	public List<Book> getBookMap() {
-		return bookDAO.getBookMap();
-	}
-
-	public boolean isPublished(String title) {
-		return bookDAO.isPublished(title);
-	}
+	public String getBooksNames();
 }
+

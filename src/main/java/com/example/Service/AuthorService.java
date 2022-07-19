@@ -1,43 +1,20 @@
 package com.example.Service;
 
-import com.example.DAO.AuthorDAO;
 import com.example.model.Author;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.bson.types.ObjectId;
 
 import java.util.List;
 
-@Service
-public class AuthorService {
+public interface AuthorService {
+	String getAuthor(String authorId);
 
-	private AuthorDAO authorDAO;
+	void deleteAuthor(String authorId);
 
-	@Autowired
-	public AuthorService(AuthorDAO authorDAO) {
-		this.authorDAO = authorDAO;
-	}
+	void updateAuthorName(String authorId, String name);
 
-	public Author getAuthor(String authorName) {
-		return authorDAO.getAuthor(authorName);
-	}
+	void addAuthor(Author author);
 
-	public void deleteAuthor(String authorName) {
-		authorDAO.deleteAuthor(authorName);
-	}
+	public List<String> getAuthorsNames();
 
-	public String getAuthorsBooks(String authorName) {
-		return authorDAO.getAuthorsBooks(authorName);
-	}
-
-	public void updateAuthorName(String authorName, String name) {
-		authorDAO.updateAuthorName(authorName, name);
-	}
-
-	public void addAuthor(String name, String title, int page, boolean published, int quantity) {
-		authorDAO.addAuthor(name, title, page, published, quantity);
-	}
-
-	public List<String> getAuthors() {
-		return authorDAO.getAuthors();
-	}
+	public ObjectId getObjectIdByAuthorName(String authorName);
 }

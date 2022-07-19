@@ -1,114 +1,90 @@
 package com.example.DAO;
 
-import com.example.Service.AuthorService;
-import com.example.model.Author;
 import com.example.model.Book;
-import com.sun.jdi.request.DuplicateRequestException;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import dev.morphia.Morphia;
+import dev.morphia.dao.BasicDAO;
+import dev.morphia.query.Query;
+import dev.morphia.query.UpdateOperations;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Component
-public class BookDAO {
+public class BookDAO extends BasicDAO<Book, ObjectId> {
 
-	Author author1 = new Author("Dorian Gray");
-	Author author2 = new Author("Hovhannes Tumanyan");
-	Book book1 = new Book(author1, "The Picture Of The Dorian Gray", 300, true, 20);
-	Book book2 = new Book(author2, "Fairy Tales", 200, false, 10);
-	public List<Book> bookMap;
-	public AuthorService authorService;
-
-	public BookDAO(List<Book> bookMap) {
-		this.bookMap = bookMap;
-		bookMap.add(book1);
-		bookMap.add(book2);
+	public BookDAO() {
+		super(new MongoClient(new MongoClientURI("mongodb://localhost:27017/")), new Morphia(), "library");
 	}
 
-	public List<Book> getBookMap() {
-		return bookMap;
-	}
-
-	public Book getBook(String title) {
-		for (int i = 0; i < bookMap.size(); i++) {
-			if (bookMap.get(i).getTitle().equals(title)) {
-				return bookMap.get(i);
-			}
-		}
-		throw new DuplicateRequestException("The book does not exists");
-	}
-
-	public void deleteBook(String title) {
-		boolean flag = true;
-
-		for (int i = 0; i < bookMap.size(); i++) {
-			if (bookMap.get(i).getTitle().equals(title)) {
-				bookMap.remove(bookMap.get(i));
-				flag = false;
-				break;
-			}
-		}
-		if (flag) throw new RuntimeException("There is no such book");
-	}
-
-	public void updateBookName(String bookTitle, String title) {
-		boolean flag = true;
-
-		for (Book book : bookMap) {
-			if (book.getTitle().equals(bookTitle)) {
-				book.setTitle(title);
-				flag = false;
-				break;
-			}
-		}
-		if (flag) throw new IllegalStateException("There is no Book with title " + bookTitle);
-	}
-
-	public void addBook(String authorName, String title, int page, boolean published, int quantity) {
-		Book book;
-		boolean flag = true;
-
-		for (Book value : bookMap) {
-			if (value.getTitle().equals(title)) {
-				flag=false;
-			}
-		}
-		if(flag) {
-			Author author = new Author(authorName);
-			book = new Book(author, title, page, published, quantity);
-			bookMap.add(book);
-		}
-	}
-
-	public List<String> getBooks() {
-		List<String> list = new ArrayList<>();
-
-		for (Book book : bookMap) {
-			String s = book.getTitle();
-			list.add(s);
-		}
-
-		if (list.size() == 0) {
-			throw new IllegalStateException("There are no books");
-		}
-		return list;
+	public BookDAO(MongoClient mongoClient, Morphia morphia, String dbName) {
+		super(mongoClient, morphia, dbName);
 	}
 
 	public List<Book> getBooksAsBooks() {
-		List<Book> list = new ArrayList<>();
+		return this.createQuery()
+				.find()
+				.toList();
+	}
 
-		for (int i = 0; i < bookMap.size(); i++) {
-			Book book = bookMap.get(i);
-			list.add(book);
+	public Book getBook(String bookId) {
+		return this.find()
+				.field("_id")
+				.equal(new ObjectId(bookId)).get();
+	}
+
+	public void deleteBook(String bookId) {
+		this.deleteByQuery(this.createQuery()
+				.field("_id")
+				.equal(new ObjectId(bookId)));
+	}
+
+	public void updateBookName(String bookId, String title) {
+		Query<Book> query = this.createQuery()
+				.field("_id")
+				.equal(new ObjectId(bookId));
+
+		UpdateOperations<Book> updates = this.createUpdateOperations().set("title", title);
+		this.update(query, updates);
+	}
+
+	public void addBook(Book book) {
+		this.save(book);
+	}
+
+	public List<String> getBooks() {
+		List<Book> books = this.createQuery()
+				.find()
+				.toList();
+
+		List<String> bookTitles = new ArrayList<>();
+		for (Book book : books) {
+			bookTitles.add(book.getTitle());
 		}
-		return list;
+		return bookTitles;
 	}
 
 	public boolean isPublished(String title) {
-		for (int i = 0; i < bookMap.size(); i++) {
-			if (bookMap.get(i).getTitle().equals(title)) {
-				return bookMap.get(i).isPublished();
+		Book book = (Book) this.createQuery()
+				.field("title")
+				.contains(title);
+		return book.isPublished();
+	}
+
+	public String getBooksNames() {
+		List<Book> books = this.createQuery()
+				.find()
+				.toList();
+		String bookNames = "";
+		if (books.size() > 1) {
+			for (int i = 0; i < books.size() - 1; i++) {
+				bookNames += books.get(i).getTitle() + ", ";
 			}
+			bookNames += books.get(books.size() - 1);
+			return bookNames;
 		}
-		throw new RuntimeException("There is no such book");
+		return books.get(books.size() - 1).getTitle();
 	}
 }
