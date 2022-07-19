@@ -1,10 +1,9 @@
 package com.example.model;
 
-import com.example.DAO.ShoppingDAO;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
-import dev.morphia.annotations.Reference;
 import org.bson.types.ObjectId;
 
 import java.util.List;
@@ -14,34 +13,34 @@ public class Shopping {
 
 	@Id
 	private ObjectId id;
-	@Reference
-	@JsonProperty("personName")
-	public Person person;
-	@Reference
-	public List<Book> books;
+	public String personId;
+	@JsonSerialize(using = ToStringSerializer.class)
+	public List<String> books;
 
 	public int totalPrice;
 
-	public Shopping(){}
-	public Shopping(Person person, List<Book> books, int totalPrice) {
-		this.person = person;
+	public Shopping() {
+	}
+
+	public Shopping(String personId, List<String> books, int totalPrice) {
+		this.personId = personId;
 		this.books = books;
 		this.totalPrice = totalPrice;
 	}
 
-	public Person getPerson() {
-		return person;
+	public String getPerson() {
+		return personId;
 	}
 
-	public void setPerson(Person person) {
-		this.person = person;
+	public void setPerson(String personId) {
+		this.personId = personId;
 	}
 
-	public List<Book> getBooks() {
+	public List<String> getBooks() {
 		return books;
 	}
 
-	public void setBooks(List<Book> books) {
+	public void setBooks(List<String> books) {
 		this.books = books;
 	}
 

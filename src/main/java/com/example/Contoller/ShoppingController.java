@@ -1,14 +1,11 @@
 package com.example.Contoller;
 
 import com.example.Service.*;
-import com.example.model.Book;
-import com.example.model.Person;
 import com.example.model.Shopping;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "/api/shopping")
@@ -26,32 +23,10 @@ public class ShoppingController {
 	}
 
 	@PostMapping(path = "/addShopping")
-	public void addBook(@RequestParam(value = "person", required = true) Person person,
-	                    @RequestParam(value = "list", required = true) List<Book> list
-	) {
-		Person person1;
-		int totalFinalPrice=0;
-		person1 = personServiceImpl.getPerson(person.getName());
-		if(person1==null){
-			throw new RuntimeException("There is no such person");
-		}
-		List<Book> finalBookList=new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) {
-			Book book ;
-			book = bookServiceImpl.getBook(list.get(i).getTitle());
-			if(book!=null){
-				finalBookList.add(book);
-				totalFinalPrice += book.getPrice()*1;
-			}
-		}
-		shoppingServiceImpl.addShopping(person, list, totalFinalPrice, 1);
+	public void addShopping(@RequestParam(value = "shopping", required = true) String shopping
+	) throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Shopping shopping1 = objectMapper.readValue(shopping, Shopping.class);
+		shoppingServiceImpl.addShopping(shopping1);
 	}
-
-	@GetMapping("/getShopping/{name}")
-	@ResponseBody
-	public Shopping getShopping(@PathVariable String name) {
-
-		return shoppingServiceImpl.getShopping(name);
-	}
-
 }

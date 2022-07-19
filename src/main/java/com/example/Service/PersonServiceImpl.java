@@ -1,7 +1,6 @@
 package com.example.Service;
 
 import com.example.DAO.PersonDAO;
-import com.example.model.Book;
 import com.example.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class PersonServiceImpl implements PersonService{
+public class PersonServiceImpl implements PersonService {
 
 	private PersonDAO personDAO;
 
@@ -18,24 +17,20 @@ public class PersonServiceImpl implements PersonService{
 		this.personDAO = personDAO;
 	}
 
-	public Person getPerson(String name) {
-		return personDAO.getPerson(name);
+	public void deletePerson(String personId) {
+		personDAO.deletePerson(personId);
 	}
 
-	public void deletePerson(String personName) {
-		personDAO.deletePerson(personName);
-	}
-
-	public String getPersonsBooks(String personName) {
+	public List<String> getPersonsBooks(String personName) {
 		return personDAO.getPersonsBooks(personName);
 	}
 
-		public void updatePersonName(String personName, String name) {
-		personDAO.updatePersonName(personName, name);
+	public void updatePersonName(String personId, String name) {
+		personDAO.updatePersonName(personId, name);
 	}
 
-	public void addPerson(String name, int age, Book book) {
-		personDAO.addPerson(name, age, book);
+	public void addPerson(Person person) {
+		personDAO.addPerson(person);
 	}
 
 	public List<String> getPersons() {

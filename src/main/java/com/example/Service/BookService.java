@@ -6,17 +6,18 @@ import java.util.List;
 
 public interface BookService {
 
-	public Book getBook(String title);
+	public Book getBook(String bookId);
 
-	public void deleteBook(String title);
+	public void deleteBook(String bookId);
 
-	public void updateBookName(String bookTitle, String title);
+	public void updateBookName(String bookId, String title);
 
-	public void addBook(String authorId, String title, int page, boolean published, int quantity, int price);
-	public List<String> getBooks();
+	public void addBook(Book book);
 
 	public List<Book> getBooksAsBooks();
 
 	public boolean isPublished(String title);
+
+	public String getBooksNames();
 }
 

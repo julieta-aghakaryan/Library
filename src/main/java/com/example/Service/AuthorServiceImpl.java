@@ -18,16 +18,16 @@ public class AuthorServiceImpl implements AuthorService {
 		this.authorDAO = authorDAO;
 	}
 
-	public Author getAuthor(String authorName) {
-		return authorDAO.getAuthor(authorName);
+	public String getAuthor(String objectId) {
+		return authorDAO.getAuthor(objectId);
 	}
 
-	public void deleteAuthor(String authorName) {
-		authorDAO.deleteAuthor(authorName);
+	public void deleteAuthor(String authorId) {
+		authorDAO.deleteAuthor(authorId);
 	}
 
-	public void updateAuthorName(String authorName, String name) {
-		authorDAO.updateAuthorName(authorName, name);
+	public void updateAuthorName(String authorId, String name) {
+		authorDAO.updateAuthorName(authorId, name);
 	}
 
 	public void addAuthor(Author author) {
@@ -38,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService {
 		return authorDAO.getAuthorsNames();
 	}
 
-	public ObjectId getObjectIdByAuthorName(String authorName){
+	public ObjectId getObjectIdByAuthorName(String authorName) {
 		return authorDAO.getObjectIdByAuthorName(authorName);
 	}
 }

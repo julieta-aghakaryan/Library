@@ -2,6 +2,8 @@ package com.example.Contoller;
 
 import com.example.Service.BookService;
 import com.example.model.Book;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,90 +11,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-
 @RequestMapping(path = "/api/book")
 public class BookController {
 
 	private final BookService bookServiceImpl;
 
-
 	@Autowired
-	public BookController(BookService bookServiceImpl){
+	public BookController(BookService bookServiceImpl) {
 		this.bookServiceImpl = bookServiceImpl;
 	}
 
 	@PostMapping(path = "/addBook")
-	public void addBook(@RequestParam(value = "authorId", required = true) String authorId,
-	                    @RequestParam(value = "title", required = true) String title,
-	                    @RequestParam(value = "page", required = true) int page,
-	                    @RequestParam(value = "published", required = true) boolean published,
-	                    @RequestParam(value = "quantity", required = true) int quantity,
-	                    @RequestParam(value = "price", required = true) int price
-	                    ) {
-		StringBuilder finalTitle = new StringBuilder();
-		String[] array = title.split("_");
-
-		for (int i = 0; i < array.length - 1; i++) {
-			finalTitle.append(array[i]).append(" ");
-		}
-		finalTitle.append(array[array.length - 1]);
-		bookServiceImpl.addBook(authorId, finalTitle.toString(), page, published, quantity, price);
-
+	public void addBook(@RequestParam(value = "book", required = true) String book)
+			throws JsonProcessingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		Book book1 = objectMapper.readValue(book, Book.class);
+		bookServiceImpl.addBook(book1);
 	}
 
 	@GetMapping
-	public List<String> getBooks() {
-		return bookServiceImpl.getBooks();
+	public List<Book> getBooks() {
+		return bookServiceImpl.getBooksAsBooks();
 	}
 
-	@DeleteMapping(path = "{title}")
-	public void deleteBook(@PathVariable("title") String title) {
-		StringBuilder finalTitle = new StringBuilder();
-		String[] array = title.split("_");
+	@DeleteMapping(path = "{bookId}")
+	public void deleteBook(@PathVariable("bookId") String bookId) {
 
-		for (int i = 0; i < array.length - 1; i++) {
-			finalTitle.append(array[i]).append(" ");
-		}
-		finalTitle.append(array[array.length - 1]);
-		bookServiceImpl.deleteBook(finalTitle.toString());
+		bookServiceImpl.deleteBook(bookId);
 	}
 
-	@PutMapping(path = "{bookTitle}")
+	@PutMapping(path = "{bookId}")
 	public void updateBookName(
-			@PathVariable("bookTitle") String bookTitle,
+			@PathVariable("bookId") String bookId,
 			@RequestParam(value = "title", required = true) String title) {
 
-		StringBuilder finalFirstTitle = new StringBuilder();
-		String[] array2 = bookTitle.split("_");
-
-		for (int i = 0; i < array2.length - 1; i++) {
-			finalFirstTitle.append(array2[i]).append(" ");
-		}
-		finalFirstTitle.append(array2[array2.length - 1]);
-
-
-		StringBuilder finalTitle = new StringBuilder();
-		String[] array = title.split("_");
-
-		for (int i = 0; i < array.length - 1; i++) {
-			finalTitle.append(array[i]).append(" ");
-		}
-		finalTitle.append(array[array.length - 1]);
-		bookServiceImpl.updateBookName(finalFirstTitle.toString(), finalTitle.toString());
+		bookServiceImpl.updateBookName(bookId, title);
 	}
 
-	@GetMapping("/isPublished/{title}")
+	@GetMapping("/isPublished/{bookId}")
 	@ResponseBody
-	public boolean isPublished(@PathVariable String title) {
-		StringBuilder finalWord = new StringBuilder();
-		String[] array = title.split("_");
-
-		for (int i = 0; i < array.length - 1; i++) {
-			finalWord.append(array[i]).append(" ");
-		}
-		finalWord.append(array[array.length - 1]);
-
-		return bookServiceImpl.getBook(finalWord.toString()).isPublished();
+	public boolean isPublished(@PathVariable String bookId) {
+		return bookServiceImpl.getBook(bookId).isPublished();
 	}
 
 	@GetMapping("/includeUnPublished/{includeUnPublished}")

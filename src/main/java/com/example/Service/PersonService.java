@@ -1,20 +1,18 @@
 package com.example.Service;
 
-import com.example.model.Book;
 import com.example.model.Person;
 
 import java.util.List;
 
 public interface PersonService {
-	public Person getPerson(String name);
 
-	public void deletePerson(String personName);
+	public void deletePerson(String personId);
 
-	public String getPersonsBooks(String personName);
+	public List<String> getPersonsBooks(String personName);
 
-	public void updatePersonName(String personName, String name);
+	public void updatePersonName(String personId, String name);
 
-	public void addPerson(String name, int age, Book book);
+	public void addPerson(Person person);
 
 	public List<String> getPersons();
 }

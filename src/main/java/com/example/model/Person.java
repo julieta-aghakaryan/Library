@@ -1,10 +1,9 @@
 package com.example.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
-import dev.morphia.annotations.Reference;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -14,14 +13,14 @@ import java.util.List;
 public class Person {
 	@Id
 	private ObjectId id;
-	@JsonProperty("personName")
 	private String name;
 	private int age;
-	@Reference
-	private List<Book> books;
+	@JsonSerialize(using = ToStringSerializer.class)
+	private List<String> books;
 
 	public Person() {
 	}
+
 	public Person(String name, int age) {
 		this.name = name;
 		this.age = age;
@@ -32,17 +31,12 @@ public class Person {
 		return name;
 	}
 
-	public String getBooks() {
-		StringBuilder word = new StringBuilder("Books are ");
-		for (int i = 0; i < books.size() - 1; i++) {
-			word.append(books.get(i).getTitle()).append(", ");
-		}
-		word.append(books.get(books.size() - 1).getTitle());
-		return word.toString();
+	public List<String> getBooks() {
+		return books;
 	}
 
-	public void setBooks(Book book) {
-		books.add(book);
+	public void setBooks(List<String> books) {
+		this.books = books;
 	}
 
 	public void setName(String name) {

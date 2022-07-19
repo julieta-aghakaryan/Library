@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class BookServiceImpl implements BookService{
+public class BookServiceImpl implements BookService {
 
 	private BookDAO bookDAO;
 
@@ -20,20 +20,20 @@ public class BookServiceImpl implements BookService{
 		this.bookDAO = bookDAO;
 	}
 
-	public Book getBook(String title) {
-		return bookDAO.getBook(title);
+	public Book getBook(String bookId) {
+		return bookDAO.getBook(bookId);
 	}
 
-	public void deleteBook(String title) {
-		bookDAO.deleteBook(title);
+	public void deleteBook(String bookId) {
+		bookDAO.deleteBook(bookId);
 	}
 
-	public void updateBookName(String bookTitle, String title) {
-		bookDAO.updateBookName(bookTitle, title);
+	public void updateBookName(String bookId, String title) {
+		bookDAO.updateBookName(bookId, title);
 	}
 
-	public void addBook(String authorId, String title, int page, boolean published, int quantity, int price) {
-		bookDAO.addBook(authorId, title, page, published, quantity, price);
+	public void addBook(Book book) {
+		bookDAO.addBook(book);
 	}
 
 	public List<String> getBooks() {
@@ -46,5 +46,10 @@ public class BookServiceImpl implements BookService{
 
 	public boolean isPublished(String title) {
 		return bookDAO.isPublished(title);
+	}
+
+	@Override
+	public String getBooksNames() {
+		return bookDAO.getBooksNames();
 	}
 }
